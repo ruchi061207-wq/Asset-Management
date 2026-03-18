@@ -22,28 +22,44 @@ let editIndex = -1;
 
 // ➕ Add / Update
 window.addAsset = async function () {
-  let asset = {
-    name: document.getElementById("assetName").value,
-    serialNumber: document.getElementById("serialNumber").value, // ✅ NEW
-    vendor: document.getElementById("vendorName").value,
-    purchase: document.getElementById("purchaseDate").value,
-    expiry: document.getElementById("expiryDate").value
-  };
+  const name = document.getElementById("assetName").value;
+  const serialNumber = document.getElementById("serialNumber").value;
+  const vendor = document.getElementById("vendorName").value;
+  const purchase = document.getElementById("purchaseDate").value;
+  const expiry = document.getElementById("expiryDate").value;
 
-  if (!asset.name || !asset.serialNumber || !asset.vendor || !asset.purchase || !asset.expiry) {
+  if (!name || !serialNumber || !vendor || !purchase || !expiry) {
     alert("Fill all fields");
     return;
   }
 
-  if (editIndex === -1) {
-    await addDoc(collection(db, "assets"), asset);
-  } else {
-    await updateDoc(doc(db, "assets", assets[editIndex].id), asset);
-    editIndex = -1;
-  }
+  try {
+    if (editIndex === -1) {
+      await addDoc(collection(db, "assets"), {
+        name,
+        serialNumber,
+        vendor,
+        purchase,
+        expiry
+      });
+    } else {
+      await updateDoc(doc(db, "assets", assets[editIndex].id), {
+        name,
+        serialNumber,
+        vendor,
+        purchase,
+        expiry
+      });
+      editIndex = -1;
+    }
 
-  clearForm();
-  loadAssets();
+    clearForm();
+    loadAssets();
+
+  } catch (e) {
+    console.error(e);
+    alert("Error saving data");
+  }
 };
 
 // 📥 Load data
@@ -117,7 +133,6 @@ function displayAssets(filtered = assets) {
       expired++;
     }
 
-    // ✅ CORRECT ROW (ONLY ONE table.innerHTML)
     table.innerHTML += `
       <tr class="${cls}">
         <td>${asset.name}</td>
