@@ -56,11 +56,11 @@ async function addAsset() {
     clearForm();
     loadAssets();
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     alert("Error saving data");
   }
-};
+}
 
 // 📥 Load data
 async function loadAssets() {
@@ -153,7 +153,6 @@ function displayAssets(filtered = assets) {
   document.getElementById("expiring").innerText = expiring;
   document.getElementById("expired").innerText = expired;
 }
-
 // 🧹 Clear form
 function clearForm() {
   document.getElementById("assetName").value = "";
