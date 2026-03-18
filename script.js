@@ -119,10 +119,10 @@ function displayAssets(filtered = assets) {
 
     table.innerHTML += `
       <tr class="${cls}">
-        table.innerHTML += `
+       table.innerHTML += `
   <tr class="${cls}">
     <td>${asset.name}</td>
-    <td>${asset.serialNumber || ""}</td> <!-- ✅ NEW -->
+    <td>${asset.serialNumber || ""}</td>
     <td>${asset.vendor}</td>
     <td>${asset.purchase}</td>
     <td>${asset.expiry}</td>
