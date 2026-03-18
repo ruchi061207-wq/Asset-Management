@@ -3,7 +3,7 @@ import {
   getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔑 Your Firebase config
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyD8tTfM7kgtDAz66bD_Ri2_WHVbvUfVXl0",
   authDomain: "asset-management-191b8.firebaseapp.com",
@@ -13,14 +13,13 @@ const firebaseConfig = {
   appId: "1:140250118302:web:e10d723fd07bba652ea38f"
 };
 
-// 🔥 Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let assets = [];
 let editIndex = -1;
 
-// ➕ Add / Update
+// ✅ ADD ASSET
 async function addAsset() {
   const name = document.getElementById("assetName").value;
   const serialNumber = document.getElementById("serialNumber").value;
@@ -57,12 +56,12 @@ async function addAsset() {
     loadAssets();
 
   } catch (err) {
-    console.error(err);
+    console.error("ERROR:", err);
     alert("Error saving data");
   }
 }
 
-// 📥 Load data
+// ✅ LOAD DATA
 async function loadAssets() {
   assets = [];
   const snapshot = await getDocs(collection(db, "assets"));
@@ -74,7 +73,7 @@ async function loadAssets() {
   displayAssets();
 }
 
-// ❌ Delete
+// ✅ DELETE
 window.deleteAsset = async function (i) {
   if (confirm("Delete this asset?")) {
     await deleteDoc(doc(db, "assets", assets[i].id));
@@ -82,12 +81,12 @@ window.deleteAsset = async function (i) {
   }
 };
 
-// ✏️ Edit
+// ✅ EDIT
 window.editAsset = function (i) {
   let a = assets[i];
 
   document.getElementById("assetName").value = a.name;
-  document.getElementById("serialNumber").value = a.serialNumber; // ✅ NEW
+  document.getElementById("serialNumber").value = a.serialNumber || "";
   document.getElementById("vendorName").value = a.vendor;
   document.getElementById("purchaseDate").value = a.purchase;
   document.getElementById("expiryDate").value = a.expiry;
@@ -95,20 +94,20 @@ window.editAsset = function (i) {
   editIndex = i;
 };
 
-// 🔍 Search
+// ✅ SEARCH
 window.searchAsset = function () {
   let val = document.getElementById("search").value.toLowerCase();
 
   let filtered = assets.filter(a =>
     a.name.toLowerCase().includes(val) ||
     a.vendor.toLowerCase().includes(val) ||
-    (a.serialNumber && a.serialNumber.toLowerCase().includes(val)) // ✅ NEW
+    (a.serialNumber && a.serialNumber.toLowerCase().includes(val))
   );
 
   displayAssets(filtered);
 };
 
-// 📊 Display
+// ✅ DISPLAY
 function displayAssets(filtered = assets) {
   let table = document.getElementById("assetTable");
   table.innerHTML = "";
@@ -153,16 +152,18 @@ function displayAssets(filtered = assets) {
   document.getElementById("expiring").innerText = expiring;
   document.getElementById("expired").innerText = expired;
 }
-// 🧹 Clear form
+
+// ✅ CLEAR FORM
 function clearForm() {
   document.getElementById("assetName").value = "";
-  document.getElementById("serialNumber").value = ""; // ✅ NEW
+  document.getElementById("serialNumber").value = "";
   document.getElementById("vendorName").value = "";
   document.getElementById("purchaseDate").value = "";
   document.getElementById("expiryDate").value = "";
 }
 
-document.getElementById("addBtn").addEventListener("click", addAsset);
+// ✅ BUTTON EVENT (IMPORTANT)
+document.getElementById("addBtn")?.addEventListener("click", addAsset);
 
-// 🚀 Load on start
+// ✅ LOAD
 window.onload = loadAssets;
