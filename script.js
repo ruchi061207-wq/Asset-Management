@@ -83,23 +83,30 @@ window.exportCSV = function () {
     return;
   }
 
-  // Prepare data
-  let data = assets.map(a => ({
-    Asset: a.name,
-    Vendor: a.vendor,
-    Purchase: a.purchase,
-    Expiry: a.expiry,
-    Status: getStatus(a.expiry)
-  }));
+  let today = new Date();
 
-  // Create worksheet
+  let data = assets.map(a => {
+    let expiryDate = new Date(a.expiry);
+    let diff = (expiryDate - today) / (1000 * 60 * 60 * 24);
+
+    let status = "Active";
+    if (diff <= 7 && diff >= 0) status = "Expiring";
+    else if (diff < 0) status = "Expired";
+
+    return {
+      Asset: a.name,
+      Vendor: a.vendor,
+      Purchase: a.purchase,
+      Expiry: a.expiry,
+      Status: status   // ✅ INCLUDED
+    };
+  });
+
   let ws = XLSX.utils.json_to_sheet(data);
 
-  // Create workbook
   let wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Assets");
 
-  // Download file
   XLSX.writeFile(wb, "Asset_Report.xlsx");
 };
 
