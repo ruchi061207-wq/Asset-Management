@@ -1,31 +1,91 @@
-let assets = JSON.parse(localStorage.getItem("assets")) || [];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 🔑 Your Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyD8tTfM7kgtDAz66bD_Ri2_WHVbvUfVXl0",
+  authDomain: "asset-management-191b8.firebaseapp.com",
+  projectId: "asset-management-191b8",
+  storageBucket: "asset-management-191b8.firebasestorage.app",
+  messagingSenderId: "140250118302",
+  appId: "1:140250118302:web:e10d723fd07bba652ea38f"
+};
+
+// 🔥 Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let assets = [];
 let editIndex = -1;
 
-function addAsset() {
-  let name = assetName.value;
-  let vendor = vendorName.value;
-  let purchase = purchaseDate.value;
-  let expiry = expiryDate.value;
+// ➕ Add / Update
+window.addAsset = async function () {
+  let asset = {
+    name: assetName.value,
+    vendor: vendorName.value,
+    purchase: purchaseDate.value,
+    expiry: expiryDate.value
+  };
 
-  if (!name || !vendor || !purchase || !expiry) {
+  if (!asset.name || !asset.vendor || !asset.purchase || !asset.expiry) {
     alert("Fill all fields");
     return;
   }
 
-  let asset = { name, vendor, purchase, expiry };
-
   if (editIndex === -1) {
-    assets.push(asset);
+    await addDoc(collection(db, "assets"), asset);
   } else {
-    assets[editIndex] = asset;
+    await updateDoc(doc(db, "assets", assets[editIndex].id), asset);
     editIndex = -1;
   }
 
-  localStorage.setItem("assets", JSON.stringify(assets));
   clearForm();
+  loadAssets();
+};
+
+// 📥 Load data
+async function loadAssets() {
+  assets = [];
+  const snapshot = await getDocs(collection(db, "assets"));
+
+  snapshot.forEach((docSnap) => {
+    assets.push({ id: docSnap.id, ...docSnap.data() });
+  });
+
   displayAssets();
 }
 
+// ❌ Delete
+window.deleteAsset = async function (i) {
+  if (confirm("Delete this asset?")) {
+    await deleteDoc(doc(db, "assets", assets[i].id));
+    loadAssets();
+  }
+};
+
+// ✏️ Edit
+window.editAsset = function (i) {
+  let a = assets[i];
+  assetName.value = a.name;
+  vendorName.value = a.vendor;
+  purchaseDate.value = a.purchase;
+  expiryDate.value = a.expiry;
+  editIndex = i;
+};
+
+// 🔍 Search
+window.searchAsset = function () {
+  let val = search.value.toLowerCase();
+  let filtered = assets.filter(a =>
+    a.name.toLowerCase().includes(val) ||
+    a.vendor.toLowerCase().includes(val)
+  );
+  displayAssets(filtered);
+};
+
+// 📊 Display
 function displayAssets(filtered = assets) {
   let table = document.getElementById("assetTable");
   table.innerHTML = "";
@@ -68,49 +128,9 @@ function displayAssets(filtered = assets) {
   document.getElementById("total").innerText = total;
   document.getElementById("expiring").innerText = expiring;
   document.getElementById("expired").innerText = expired;
-
-  checkExpiry();
 }
 
-function editAsset(i) {
-  let a = assets[i];
-  assetName.value = a.name;
-  vendorName.value = a.vendor;
-  purchaseDate.value = a.purchase;
-  expiryDate.value = a.expiry;
-  editIndex = i;
-}
-
-function deleteAsset(i) {
-  if (confirm("Delete this asset?")) {
-    assets.splice(i, 1);
-    localStorage.setItem("assets", JSON.stringify(assets));
-    displayAssets();
-  }
-}
-
-function searchAsset() {
-  let val = search.value.toLowerCase();
-  let filtered = assets.filter(a =>
-    a.name.toLowerCase().includes(val) ||
-    a.vendor.toLowerCase().includes(val)
-  );
-  displayAssets(filtered);
-}
-
-function exportCSV() {
-  let csv = "Asset,Vendor,Purchase,Expiry\n";
-  assets.forEach(a => {
-    csv += `${a.name},${a.vendor},${a.purchase},${a.expiry}\n`;
-  });
-
-  let blob = new Blob([csv], { type: "text/csv" });
-  let a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "assets.csv";
-  a.click();
-}
-
+// 🧹 Clear form
 function clearForm() {
   assetName.value = "";
   vendorName.value = "";
@@ -118,28 +138,5 @@ function clearForm() {
   expiryDate.value = "";
 }
 
-function checkExpiry() {
-  let today = new Date();
-
-  assets.forEach(a => {
-    let diff = (new Date(a.expiry) - today) / (1000*60*60*24);
-
-    if (diff <= 7 && diff >= 0) {
-      showPopup(`⚠️ ${a.name} expiring in ${Math.ceil(diff)} days`);
-    }
-    if (diff < 0) {
-      showPopup(`❌ ${a.name} expired`);
-    }
-  });
-}
-
-function showPopup(msg) {
-  popupMessage.innerText = msg;
-  popup.style.display = "block";
-}
-
-function closePopup() {
-  popup.style.display = "none";
-}
-
-window.onload = () => displayAssets();
+// 🚀 Load on start
+window.onload = loadAssets;
