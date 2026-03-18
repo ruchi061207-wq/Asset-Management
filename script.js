@@ -139,4 +139,4 @@ function clearForm() {
 }
 
 // 🚀 Load on start
-window.onload = loadAssets; 
+window.onload = loadAssets;
