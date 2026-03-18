@@ -23,13 +23,14 @@ let editIndex = -1;
 // ➕ Add / Update
 window.addAsset = async function () {
   let asset = {
-    name: assetName.value,
-    vendor: vendorName.value,
-    purchase: purchaseDate.value,
-    expiry: expiryDate.value
+    name: document.getElementById("assetName").value,
+    serialNumber: document.getElementById("serialNumber").value, // ✅ NEW
+    vendor: document.getElementById("vendorName").value,
+    purchase: document.getElementById("purchaseDate").value,
+    expiry: document.getElementById("expiryDate").value
   };
 
-  if (!asset.name || !asset.vendor || !asset.purchase || !asset.expiry) {
+  if (!asset.name || !asset.serialNumber || !asset.vendor || !asset.purchase || !asset.expiry) {
     alert("Fill all fields");
     return;
   }
@@ -68,20 +69,26 @@ window.deleteAsset = async function (i) {
 // ✏️ Edit
 window.editAsset = function (i) {
   let a = assets[i];
-  assetName.value = a.name;
-  vendorName.value = a.vendor;
-  purchaseDate.value = a.purchase;
-  expiryDate.value = a.expiry;
+
+  document.getElementById("assetName").value = a.name;
+  document.getElementById("serialNumber").value = a.serialNumber; // ✅ NEW
+  document.getElementById("vendorName").value = a.vendor;
+  document.getElementById("purchaseDate").value = a.purchase;
+  document.getElementById("expiryDate").value = a.expiry;
+
   editIndex = i;
 };
 
 // 🔍 Search
 window.searchAsset = function () {
-  let val = search.value.toLowerCase();
+  let val = document.getElementById("search").value.toLowerCase();
+
   let filtered = assets.filter(a =>
     a.name.toLowerCase().includes(val) ||
-    a.vendor.toLowerCase().includes(val)
+    a.vendor.toLowerCase().includes(val) ||
+    (a.serialNumber && a.serialNumber.toLowerCase().includes(val)) // ✅ NEW
   );
+
   displayAssets(filtered);
 };
 
@@ -112,18 +119,20 @@ function displayAssets(filtered = assets) {
 
     table.innerHTML += `
       <tr class="${cls}">
-        <td>${asset.name}</td>
-        <td>${asset.vendor}</td>
-        <td>${asset.purchase}</td>
-        <td>${asset.expiry}</td>
-        <td>${status}</td>
-        <td>
-          <button onclick="editAsset(${index})">Edit</button>
-          <button onclick="deleteAsset(${index})">Delete</button>
-        </td>
-      </tr>
-    `;
-  });
+        table.innerHTML += `
+  <tr class="${cls}">
+    <td>${asset.name}</td>
+    <td>${asset.serialNumber || ""}</td> <!-- ✅ NEW -->
+    <td>${asset.vendor}</td>
+    <td>${asset.purchase}</td>
+    <td>${asset.expiry}</td>
+    <td>${status}</td>
+    <td>
+      <button onclick="editAsset(${index})">Edit</button>
+      <button onclick="deleteAsset(${index})">Delete</button>
+    </td>
+  </tr>
+`;
 
   document.getElementById("total").innerText = total;
   document.getElementById("expiring").innerText = expiring;
@@ -132,10 +141,11 @@ function displayAssets(filtered = assets) {
 
 // 🧹 Clear form
 function clearForm() {
-  assetName.value = "";
-  vendorName.value = "";
-  purchaseDate.value = "";
-  expiryDate.value = "";
+  document.getElementById("assetName").value = "";
+  document.getElementById("serialNumber").value = ""; // ✅ NEW
+  document.getElementById("vendorName").value = "";
+  document.getElementById("purchaseDate").value = "";
+  document.getElementById("expiryDate").value = "";
 }
 
 // 🚀 Load on start
