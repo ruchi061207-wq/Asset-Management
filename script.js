@@ -77,58 +77,41 @@ window.editAsset = function (id) {
   editIndex = assets.indexOf(a);
 };
 
-window.exportExcel = function () {
-  console.log("Export started");
-
+window.exportCSV = function () {
   if (!assets || assets.length === 0) {
     alert("No data to export");
     return;
   }
 
-  let today = new Date();
+  // Prepare data
+  let data = assets.map(a => ({
+    Asset: a.name,
+    Vendor: a.vendor,
+    Purchase: a.purchase,
+    Expiry: a.expiry,
+    Status: getStatus(a.expiry)
+  }));
 
-  let data = assets.map(a => {
-    let expiryDate = new Date(a.expiry);
-    let diff = (expiryDate - today) / (1000 * 60 * 60 * 24);
+  // Create worksheet
+  let ws = XLSX.utils.json_to_sheet(data);
 
-    let status = "Active";
-    let color = "90EE90";
-
-    if (diff <= 7 && diff >= 0) {
-      status = "Expiring";
-      color = "FFFF00";
-    } else if (diff < 0) {
-      status = "Expired";
-      color = "FF0000";
-    }
-
-    return { ...a, status, color };
-  });
-
-  let ws = XLSX.utils.json_to_sheet(data.map(d => ({
-    Asset: d.name,
-    Vendor: d.vendor,
-    Purchase: d.purchase,
-    Expiry: d.expiry,
-    Status: d.status
-  })));
-
-  let range = XLSX.utils.decode_range(ws['!ref']);
-
-  for (let i = 1; i <= range.e.r; i++) {
-    let cell = "E" + (i + 1);
-    if (ws[cell]) {
-      ws[cell].s = {
-        fill: { fgColor: { rgb: data[i - 1].color } }
-      };
-    }
-  }
-
+  // Create workbook
   let wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Assets");
 
+  // Download file
   XLSX.writeFile(wb, "Asset_Report.xlsx");
 };
+
+function getStatus(expiry) {
+  let today = new Date();
+  let expiryDate = new Date(expiry);
+  let diff = (expiryDate - today) / (1000 * 60 * 60 * 24);
+
+  if (diff <= 7 && diff >= 0) return "Expiring";
+  if (diff < 0) return "Expired";
+  return "Active";
+}
 
 // 🔍 Search
 window.searchAsset = function () {
