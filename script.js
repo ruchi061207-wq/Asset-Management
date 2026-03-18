@@ -24,12 +24,13 @@ let editIndex = -1;
 window.addAsset = async function () {
   let asset = {
     name: assetName.value,
+    num: SerialNo.value,
     vendor: vendorName.value,
     purchase: purchaseDate.value,
     expiry: expiryDate.value
   };
 
-  if (!asset.name || !asset.vendor || !asset.purchase || !asset.expiry) {
+  if (!asset.name || !asset.serialno || !asset.vendor || !asset.purchase || !asset.expiry) {
     alert("Fill all fields");
     return;
   }
@@ -69,6 +70,7 @@ window.deleteAsset = async function (i) {
 window.editAsset = function (i) {
   let a = assets[i];
   assetName.value = a.name;
+  serialNo.value = a.serialno;
   vendorName.value = a.vendor;
   purchaseDate.value = a.purchase;
   expiryDate.value = a.expiry;
@@ -113,6 +115,7 @@ function displayAssets(filtered = assets) {
     table.innerHTML += `
       <tr class="${cls}">
         <td>${asset.name}</td>
+        <td>${asset.no)</td>
         <td>${asset.vendor}</td>
         <td>${asset.purchase}</td>
         <td>${asset.expiry}</td>
@@ -133,6 +136,7 @@ function displayAssets(filtered = assets) {
 // 🧹 Clear form
 function clearForm() {
   assetName.value = "";
+  serialNo.value = "";
   vendorName.value = "";
   purchaseDate.value = "";
   expiryDate.value = "";
