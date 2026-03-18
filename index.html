@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Asset Manager Pro</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h2>Asset Warranty Manager</h2>
+
+<div class="dashboard">
+  <div>Total: <span id="total"></span></div>
+  <div>Expiring: <span id="expiring"></span></div>
+  <div>Expired: <span id="expired"></span></div>
+</div>
+
+<div class="form">
+  <input type="text" id="assetName" placeholder="Asset Name">
+  <input type="text" id="vendorName" placeholder="Vendor Name">
+  <input type="date" id="purchaseDate">
+  <input type="date" id="expiryDate">
+  <button onclick="addAsset()">Add Asset</button>
+</div>
+
+<div class="tools">
+  <input type="text" id="search" placeholder="Search asset..." onkeyup="searchAsset()">
+  <button onclick="exportCSV()">Export CSV</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Asset</th>
+      <th>Vendor</th>
+      <th>Purchase</th>
+      <th>Expiry</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="assetTable"></tbody>
+</table>
+
+<!-- Popup -->
+<div id="popup" class="popup">
+  <div class="popup-content">
+    <span onclick="closePopup()" class="close">&times;</span>
+    <p id="popupMessage"></p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
