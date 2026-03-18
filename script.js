@@ -78,7 +78,7 @@ window.editAsset = function (id) {
 };
 
 window.exportCSV = function () {
-  if (assets.length === 0) {
+  if (!assets || assets.length === 0) {
     alert("No data to export");
     return;
   }
@@ -89,17 +89,22 @@ window.exportCSV = function () {
     csv += `${a.name},${a.vendor},${a.purchase},${a.expiry}\n`;
   });
 
-  let blob = new Blob([csv], { type: "text/csv" });
-  let url = window.URL.createObjectURL(blob);
+  let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  let url = URL.createObjectURL(blob);
 
-  let a = document.createElement("a");
-  a.href = url;
-  a.download = "assets.csv";
-  a.click();
+  let link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", "assets.csv");
 
-  window.URL.revokeObjectURL(url);
+  // ✅ IMPORTANT FIX
+  document.body.appendChild(link);
+
+  link.click();
+
+  // cleanup
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
-
 // 🔍 Search
 window.searchAsset = function () {
   let val = search.value.toLowerCase();
