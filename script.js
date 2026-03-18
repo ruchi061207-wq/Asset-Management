@@ -69,7 +69,6 @@ window.deleteAsset = async function (i) {
 window.editAsset = function (i) {
   let a = assets[i];
   assetName.value = a.name;
-  serialNo.value = a.serialno;
   vendorName.value = a.vendor;
   purchaseDate.value = a.purchase;
   expiryDate.value = a.expiry;
@@ -114,7 +113,6 @@ function displayAssets(filtered = assets) {
     table.innerHTML += `
       <tr class="${cls}">
         <td>${asset.name}</td>
-        <td>${asset.no)</td>
         <td>${asset.vendor}</td>
         <td>${asset.purchase}</td>
         <td>${asset.expiry}</td>
@@ -135,7 +133,6 @@ function displayAssets(filtered = assets) {
 // 🧹 Clear form
 function clearForm() {
   assetName.value = "";
-  serialNo.value = "";
   vendorName.value = "";
   purchaseDate.value = "";
   expiryDate.value = "";
