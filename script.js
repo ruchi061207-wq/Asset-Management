@@ -3,7 +3,7 @@ import {
   getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔑 Your Firebase config
+// 🔑 Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyD8tTfM7kgtDAz66bD_Ri2_WHVbvUfVXl0",
   authDomain: "asset-management-191b8.firebaseapp.com",
@@ -13,7 +13,7 @@ const firebaseConfig = {
   appId: "1:140250118302:web:e10d723fd07bba652ea38f"
 };
 
-// 🔥 Initialize Firebase
+// 🔥 Init
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -24,13 +24,13 @@ let editIndex = -1;
 window.addAsset = async function () {
   let asset = {
     name: assetName.value,
-    num: SerialNo.value,
+    serialNo: serialNumber.value,   // ✅ FIXED
     vendor: vendorName.value,
     purchase: purchaseDate.value,
     expiry: expiryDate.value
   };
 
-  if (!asset.name || !asset.serialno || !asset.vendor || !asset.purchase || !asset.expiry) {
+  if (!asset.name || !asset.serialNo || !asset.vendor || !asset.purchase || !asset.expiry) {
     alert("Fill all fields");
     return;
   }
@@ -69,21 +69,26 @@ window.deleteAsset = async function (i) {
 // ✏️ Edit
 window.editAsset = function (i) {
   let a = assets[i];
+
   assetName.value = a.name;
-  serialNo.value = a.serialno;
+  serialNumber.value = a.serialNo;   // ✅ FIXED
   vendorName.value = a.vendor;
   purchaseDate.value = a.purchase;
   expiryDate.value = a.expiry;
+
   editIndex = i;
 };
 
 // 🔍 Search
 window.searchAsset = function () {
   let val = search.value.toLowerCase();
+
   let filtered = assets.filter(a =>
     a.name.toLowerCase().includes(val) ||
-    a.vendor.toLowerCase().includes(val)
+    a.vendor.toLowerCase().includes(val) ||
+    (a.serialNo && a.serialNo.toLowerCase().includes(val)) // ✅ include serial search
   );
+
   displayAssets(filtered);
 };
 
@@ -96,8 +101,8 @@ function displayAssets(filtered = assets) {
   let today = new Date();
 
   filtered.forEach((asset, index) => {
-    let expiryDate = new Date(asset.expiry);
-    let diff = (expiryDate - today) / (1000*60*60*24);
+    let expiryDateObj = new Date(asset.expiry);
+    let diff = (expiryDateObj - today) / (1000 * 60 * 60 * 24);
 
     let status = "Active";
     let cls = "";
@@ -115,7 +120,7 @@ function displayAssets(filtered = assets) {
     table.innerHTML += `
       <tr class="${cls}">
         <td>${asset.name}</td>
-        <td>${asset.no)</td>
+        <td>${asset.serialNo}</td> <!-- ✅ FIXED -->
         <td>${asset.vendor}</td>
         <td>${asset.purchase}</td>
         <td>${asset.expiry}</td>
@@ -136,11 +141,11 @@ function displayAssets(filtered = assets) {
 // 🧹 Clear form
 function clearForm() {
   assetName.value = "";
-  serialNo.value = "";
+  serialNumber.value = "";  // ✅ FIXED
   vendorName.value = "";
   purchaseDate.value = "";
   expiryDate.value = "";
 }
 
 // 🚀 Load on start
-window.onload = loadAssets;
+window.onload = loadAssets;ts;
