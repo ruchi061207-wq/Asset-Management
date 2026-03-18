@@ -3,7 +3,7 @@ import {
   getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase config
+// 🔑 Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyD8tTfM7kgtDAz66bD_Ri2_WHVbvUfVXl0",
   authDomain: "asset-management-191b8.firebaseapp.com",
@@ -13,55 +13,39 @@ const firebaseConfig = {
   appId: "1:140250118302:web:e10d723fd07bba652ea38f"
 };
 
+// 🔥 Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let assets = [];
 let editIndex = -1;
 
-// ✅ ADD ASSET
-async function addAsset() {
-  const name = document.getElementById("assetName").value;
-  const serialNumber = document.getElementById("serialNumber").value;
-  const vendor = document.getElementById("vendorName").value;
-  const purchase = document.getElementById("purchaseDate").value;
-  const expiry = document.getElementById("expiryDate").value;
+// ➕ Add / Update
+window.addAsset = async function () {
+  let asset = {
+    name: assetName.value,
+    vendor: vendorName.value,
+    purchase: purchaseDate.value,
+    expiry: expiryDate.value
+  };
 
-  if (!name || !serialNumber || !vendor || !purchase || !expiry) {
+  if (!asset.name || !asset.vendor || !asset.purchase || !asset.expiry) {
     alert("Fill all fields");
     return;
   }
 
-  try {
-    if (editIndex === -1) {
-      await addDoc(collection(db, "assets"), {
-        name,
-        serialNumber,
-        vendor,
-        purchase,
-        expiry
-      });
-    } else {
-      await updateDoc(doc(db, "assets", assets[editIndex].id), {
-        name,
-        serialNumber,
-        vendor,
-        purchase,
-        expiry
-      });
-      editIndex = -1;
-    }
-
-    clearForm();
-    loadAssets();
-
-  } catch (err) {
-    console.error("ERROR:", err);
-    alert("Error saving data");
+  if (editIndex === -1) {
+    await addDoc(collection(db, "assets"), asset);
+  } else {
+    await updateDoc(doc(db, "assets", assets[editIndex].id), asset);
+    editIndex = -1;
   }
-}
 
-// ✅ LOAD DATA
+  clearForm();
+  loadAssets();
+};
+
+// 📥 Load data
 async function loadAssets() {
   assets = [];
   const snapshot = await getDocs(collection(db, "assets"));
@@ -73,7 +57,7 @@ async function loadAssets() {
   displayAssets();
 }
 
-// ✅ DELETE
+// ❌ Delete
 window.deleteAsset = async function (i) {
   if (confirm("Delete this asset?")) {
     await deleteDoc(doc(db, "assets", assets[i].id));
@@ -81,33 +65,27 @@ window.deleteAsset = async function (i) {
   }
 };
 
-// ✅ EDIT
+// ✏️ Edit
 window.editAsset = function (i) {
   let a = assets[i];
-
-  document.getElementById("assetName").value = a.name;
-  document.getElementById("serialNumber").value = a.serialNumber || "";
-  document.getElementById("vendorName").value = a.vendor;
-  document.getElementById("purchaseDate").value = a.purchase;
-  document.getElementById("expiryDate").value = a.expiry;
-
+  assetName.value = a.name;
+  vendorName.value = a.vendor;
+  purchaseDate.value = a.purchase;
+  expiryDate.value = a.expiry;
   editIndex = i;
 };
 
-// ✅ SEARCH
+// 🔍 Search
 window.searchAsset = function () {
-  let val = document.getElementById("search").value.toLowerCase();
-
+  let val = search.value.toLowerCase();
   let filtered = assets.filter(a =>
     a.name.toLowerCase().includes(val) ||
-    a.vendor.toLowerCase().includes(val) ||
-    (a.serialNumber && a.serialNumber.toLowerCase().includes(val))
+    a.vendor.toLowerCase().includes(val)
   );
-
   displayAssets(filtered);
 };
 
-// ✅ DISPLAY
+// 📊 Display
 function displayAssets(filtered = assets) {
   let table = document.getElementById("assetTable");
   table.innerHTML = "";
@@ -117,7 +95,7 @@ function displayAssets(filtered = assets) {
 
   filtered.forEach((asset, index) => {
     let expiryDate = new Date(asset.expiry);
-    let diff = (expiryDate - today) / (1000 * 60 * 60 * 24);
+    let diff = (expiryDate - today) / (1000*60*60*24);
 
     let status = "Active";
     let cls = "";
@@ -135,7 +113,6 @@ function displayAssets(filtered = assets) {
     table.innerHTML += `
       <tr class="${cls}">
         <td>${asset.name}</td>
-        <td>${asset.serialNumber || ""}</td>
         <td>${asset.vendor}</td>
         <td>${asset.purchase}</td>
         <td>${asset.expiry}</td>
@@ -153,17 +130,13 @@ function displayAssets(filtered = assets) {
   document.getElementById("expired").innerText = expired;
 }
 
-// ✅ CLEAR FORM
+// 🧹 Clear form
 function clearForm() {
-  document.getElementById("assetName").value = "";
-  document.getElementById("serialNumber").value = "";
-  document.getElementById("vendorName").value = "";
-  document.getElementById("purchaseDate").value = "";
-  document.getElementById("expiryDate").value = "";
+  assetName.value = "";
+  vendorName.value = "";
+  purchaseDate.value = "";
+  expiryDate.value = "";
 }
 
-// ✅ BUTTON EVENT (IMPORTANT)
-document.getElementById("addBtn")?.addEventListener("click", addAsset);
-
-// ✅ LOAD
-window.onload = loadAssets;
+// 🚀 Load on start
+window.onload = loadAssets; 
