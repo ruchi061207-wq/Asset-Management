@@ -102,7 +102,7 @@ function displayAssets(filtered = assets) {
 
   filtered.forEach((asset, index) => {
     let expiryDate = new Date(asset.expiry);
-    let diff = (expiryDate - today) / (1000*60*60*24);
+    let diff = (expiryDate - today) / (1000 * 60 * 60 * 24);
 
     let status = "Active";
     let cls = "";
@@ -117,22 +117,22 @@ function displayAssets(filtered = assets) {
       expired++;
     }
 
+    // ✅ CORRECT ROW (ONLY ONE table.innerHTML)
     table.innerHTML += `
       <tr class="${cls}">
-       table.innerHTML += `
-  <tr class="${cls}">
-    <td>${asset.name}</td>
-    <td>${asset.serialNumber || ""}</td>
-    <td>${asset.vendor}</td>
-    <td>${asset.purchase}</td>
-    <td>${asset.expiry}</td>
-    <td>${status}</td>
-    <td>
-      <button onclick="editAsset(${index})">Edit</button>
-      <button onclick="deleteAsset(${index})">Delete</button>
-    </td>
-  </tr>
-`;
+        <td>${asset.name}</td>
+        <td>${asset.serialNumber || ""}</td>
+        <td>${asset.vendor}</td>
+        <td>${asset.purchase}</td>
+        <td>${asset.expiry}</td>
+        <td>${status}</td>
+        <td>
+          <button onclick="editAsset(${index})">Edit</button>
+          <button onclick="deleteAsset(${index})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
 
   document.getElementById("total").innerText = total;
   document.getElementById("expiring").innerText = expiring;
