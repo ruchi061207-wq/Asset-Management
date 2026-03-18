@@ -21,7 +21,7 @@ let assets = [];
 let editIndex = -1;
 
 // ➕ Add / Update
-window.addAsset = async function () {
+async function addAsset() {
   const name = document.getElementById("assetName").value;
   const serialNumber = document.getElementById("serialNumber").value;
   const vendor = document.getElementById("vendorName").value;
@@ -162,6 +162,8 @@ function clearForm() {
   document.getElementById("purchaseDate").value = "";
   document.getElementById("expiryDate").value = "";
 }
+
+document.getElementById("addBtn").addEventListener("click", addAsset);
 
 // 🚀 Load on start
 window.onload = loadAssets;
