@@ -77,7 +77,7 @@ window.editAsset = function (id) {
   editIndex = assets.indexOf(a);
 };
 
-window.exportCSV = function () {
+window.exportExcel = function () {
   if (!assets || assets.length === 0) {
     alert("No data to export");
     return;
@@ -85,25 +85,59 @@ window.exportCSV = function () {
 
   let today = new Date();
 
+  // Prepare data
   let data = assets.map(a => {
     let expiryDate = new Date(a.expiry);
     let diff = (expiryDate - today) / (1000 * 60 * 60 * 24);
 
     let status = "Active";
-    if (diff <= 7 && diff >= 0) status = "Expiring";
-    else if (diff < 0) status = "Expired";
+    let color = "90EE90"; // green
+
+    if (diff <= 7 && diff >= 0) {
+      status = "Expiring";
+      color = "FFFF00"; // yellow
+    } else if (diff < 0) {
+      status = "Expired";
+      color = "FF0000"; // red
+    }
 
     return {
       Asset: a.name,
       Vendor: a.vendor,
       Purchase: a.purchase,
       Expiry: a.expiry,
-      Status: status   // ✅ INCLUDED
+      Status: status,
+      color: color
     };
   });
 
-  let ws = XLSX.utils.json_to_sheet(data);
+  // Create worksheet
+  let ws = XLSX.utils.json_to_sheet(data.map(({ color, ...rest }) => rest));
 
+  // Apply color to Status column (E)
+  let range = XLSX.utils.decode_range(ws['!ref']);
+
+  for (let i = 1; i <= range.e.r; i++) {
+    let cell = "E" + (i + 1);
+    if (!ws[cell]) continue;
+
+    ws[cell].s = {
+      fill: {
+        fgColor: { rgb: data[i - 1].color }
+      }
+    };
+  }
+
+  // Column widths
+  ws['!cols'] = [
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 12 }
+  ];
+
+  // Workbook
   let wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Assets");
 
