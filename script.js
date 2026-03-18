@@ -66,13 +66,38 @@ window.deleteAsset = async function (i) {
 };
 
 // ✏️ Edit
-window.editAsset = function (i) {
-  let a = assets[i];
+window.editAsset = function (id) {
+  let a = assets.find(x => x.id === id);
+
   assetName.value = a.name;
   vendorName.value = a.vendor;
   purchaseDate.value = a.purchase;
   expiryDate.value = a.expiry;
-  editIndex = i;
+
+  editIndex = assets.indexOf(a);
+};
+
+window.exportCSV = function () {
+  if (assets.length === 0) {
+    alert("No data to export");
+    return;
+  }
+
+  let csv = "Asset,Vendor,Purchase,Expiry\n";
+
+  assets.forEach(a => {
+    csv += `${a.name},${a.vendor},${a.purchase},${a.expiry}\n`;
+  });
+
+  let blob = new Blob([csv], { type: "text/csv" });
+  let url = window.URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "assets.csv";
+  a.click();
+
+  window.URL.revokeObjectURL(url);
 };
 
 // 🔍 Search
@@ -93,7 +118,7 @@ function displayAssets(filtered = assets) {
   let total = assets.length, expiring = 0, expired = 0;
   let today = new Date();
 
-  filtered.forEach((asset, index) => {
+  filtered.forEach((asset) => {
     let expiryDate = new Date(asset.expiry);
     let diff = (expiryDate - today) / (1000*60*60*24);
 
@@ -118,8 +143,8 @@ function displayAssets(filtered = assets) {
         <td>${asset.expiry}</td>
         <td>${status}</td>
         <td>
-          <button onclick="editAsset(${index})">Edit</button>
-          <button onclick="deleteAsset(${index})">Delete</button>
+          <button onclick="editAsset('${asset.id}')">Edit</button>
+          <button onclick="deleteAsset('${asset.id}')">Delete</button>
         </td>
       </tr>
     `;
