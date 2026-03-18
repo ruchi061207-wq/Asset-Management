@@ -83,28 +83,26 @@ window.exportCSV = function () {
     return;
   }
 
-  let csv = "Asset,Vendor,Purchase,Expiry\n";
+  // Prepare data
+  let data = assets.map(a => ({
+    Asset: a.name,
+    Vendor: a.vendor,
+    Purchase: a.purchase,
+    Expiry: a.expiry,
+    Status: getStatus(a.expiry)
+  }));
 
-  assets.forEach(a => {
-    csv += `${a.name},${a.vendor},${a.purchase},${a.expiry}\n`;
-  });
+  // Create worksheet
+  let ws = XLSX.utils.json_to_sheet(data);
 
-  let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  let url = URL.createObjectURL(blob);
+  // Create workbook
+  let wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Assets");
 
-  let link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", "assets.csv");
-
-  // ✅ IMPORTANT FIX
-  document.body.appendChild(link);
-
-  link.click();
-
-  // cleanup
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Download file
+  XLSX.writeFile(wb, "Asset_Report.xlsx");
 };
+
 // 🔍 Search
 window.searchAsset = function () {
   let val = search.value.toLowerCase();
