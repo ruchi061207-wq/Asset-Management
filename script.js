@@ -241,6 +241,20 @@ let templateParams = {
 message: message
 };
 
+async function sendEmailOnceDaily() {
+
+  const docRef = db.collection("system").doc("emailStatus");
+  const docSnap = await docRef.get();
+
+  const today = new Date().toDateString();
+  const lastSent = docSnap.data()?.lastSent;
+
+  // Stop if already sent today
+  if (lastSent === today) {
+    console.log("Email already sent today");
+    return;
+  }
+  
 emailjs.send("service_6b9nrh7","template_rzx54en",templateParams)
 .then(function(response) {
 
@@ -339,8 +353,9 @@ function clearForm() {
 }
 
 // 🚀 Load on start
-window.onload = async function(){
-
+window.onload = function(){
+   sendEmailOnceDaily();
+};
   await loadAssets();
   checkWarrantyAlerts(); 
 
