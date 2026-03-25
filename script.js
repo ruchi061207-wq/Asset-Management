@@ -216,7 +216,39 @@ message += asset.name + serialText + " expires on " + asset.expiry + "\n";
 
 alert(message);
 
+// 📧 Send Email
+sendWarrantyEmail(expiringAssets);
+
 }
+}
+
+//Email Function
+function sendWarrantyEmail(expiringAssets){
+
+let message = "";
+
+expiringAssets.forEach(asset => {
+
+let serialText = asset.serial ? " (" + asset.serial + ")" : "";
+
+message += asset.name + serialText + " expires on " + asset.expiry + "\n";
+
+});
+
+let templateParams = {
+message: message
+};
+
+emailjs.send("service_6b9nrh7","template_rzx54en",templateParams)
+.then(function(response) {
+
+console.log("Email Sent Successfully", response);
+
+}, function(error) {
+
+console.log("Email Failed", error);
+
+});
 
 }
 
