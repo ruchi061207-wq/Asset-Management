@@ -225,6 +225,8 @@ sendWarrantyEmail(expiringAssets);
 //Email Function
 function sendWarrantyEmail(expiringAssets){
 
+console.log("Email function started");
+
 let message = "";
 
 expiringAssets.forEach(asset => {
@@ -243,10 +245,12 @@ emailjs.send("service_6b9nrh7","template_rzx54en",templateParams)
 .then(function(response) {
 
 console.log("Email Sent Successfully", response);
+alert("Email Sent");
 
 }, function(error) {
 
 console.log("Email Failed", error);
+alert("Email Failed");
 
 });
 
