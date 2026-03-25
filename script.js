@@ -24,12 +24,13 @@ let editIndex = -1;
 window.addAsset = async function () {
   let asset = {
     name: assetName.value,
+    serial: serialNo.value,
     vendor: vendorName.value,
     purchase: purchaseDate.value,
     expiry: expiryDate.value
   };
 
-  if (!asset.name || !asset.vendor || !asset.purchase || !asset.expiry) {
+  if (!asset.name || !asset.serial || !asset.vendor || !asset.purchase || !asset.expiry) {
     alert("Fill all fields");
     return;
   }
@@ -74,6 +75,7 @@ window.editAsset = function (id) {
   let a = assets.find(x => x.id === id);
 
   assetName.value = a.name;
+  serialNo.value = a.serial;
   vendorName.value = a.vendor;
   purchaseDate.value = a.purchase;
   expiryDate.value = a.expiry;
@@ -91,7 +93,7 @@ window.exportExcel = function () {
   let today = new Date();
 
   let rows = [
-    ["Asset", "Vendor", "Purchase", "Expiry", "Status"]
+    ["Asset", "Serial No", "Vendor", "Purchase", "Expiry", "Status"]
   ];
 
   let colors = [];
@@ -113,7 +115,7 @@ window.exportExcel = function () {
       color = "FF0000"; // red
     }
 
-    rows.push([a.name, a.vendor, a.purchase, a.expiry, status]);
+    rows.push([a.name, a.serial, a.vendor, a.purchase, a.expiry, status]);
     colors.push(color);
 
   });
@@ -186,18 +188,19 @@ function displayAssets(filtered = assets) {
     }
 
     table.innerHTML += `
-      <tr class="${cls}">
-        <td>${asset.name}</td>
-        <td>${asset.vendor}</td>
-        <td>${asset.purchase}</td>
-        <td>${asset.expiry}</td>
-        <td>${status}</td>
-        <td>
-          <button onclick="editAsset('${asset.id}')">Edit</button>
-          <button onclick="deleteAsset('${asset.id}')">Delete</button>
-        </td>
-      </tr>
-    `;
+<tr class="${cls}">
+  <td>${asset.name}</td>
+  <td>${asset.serial}</td>
+  <td>${asset.vendor}</td>
+  <td>${asset.purchase}</td>
+  <td>${asset.expiry}</td>
+  <td>${status}</td>
+  <td>
+    <button onclick="editAsset('${asset.id}')">Edit</button>
+    <button onclick="deleteAsset('${asset.id}')">Delete</button>
+  </td>
+</tr>
+`;
   });
 
   document.getElementById("total").innerText = total;
@@ -235,6 +238,7 @@ function showExpiryAlert(){
 // 🧹 Clear form
 function clearForm() {
   assetName.value = "";
+  serialNo.value = "";
   vendorName.value = "";
   purchaseDate.value = "";
   expiryDate.value = "";
