@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc 
+  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // 🔑 Your Firebase config
@@ -241,27 +241,49 @@ let templateParams = {
 message: message
 };
 
-async function sendEmailOnceDaily() {
+async function sendWarrantyEmail(expiringAssets){
 
-  const docRef = db.collection("system").doc("emailStatus");
-  const docSnap = await docRef.get();
+console.log("Email function started");
 
-  const today = new Date().toDateString();
-  const lastSent = docSnap.data()?.lastSent;
+let message = "";
 
-  // Stop if already sent today
-  if (lastSent === today) {
-    console.log("Email already sent today");
-    return;
-  }
-  
+expiringAssets.forEach(asset => {
+
+let serialText = asset.serial ? " (" + asset.serial + ")" : "";
+
+message += asset.name + serialText + " expires on " + asset.expiry + "\n";
+
+});
+
+let templateParams = {
+message: message
+};
+
+// 🔍 Check Firestore if email already sent today
+const docRef = doc(db,"system","emailStatus");
+const docSnap = await getDoc(docRef);
+
+const today = new Date().toDateString();
+const lastSent = docSnap.exists() ? docSnap.data().lastSent : null;
+
+if(lastSent === today){
+
+console.log("Email already sent today");
+return;
+
+}
+
+// 📧 Send Email
 emailjs.send("service_6b9nrh7","template_rzx54en",templateParams)
-.then(function(response) {
+.then(async function(response){
 
 console.log("Email Sent Successfully", response);
 alert("Email Sent");
 
-}, function(error) {
+// Save today's date in Firestore
+await setDoc(docRef,{ lastSent: today });
+
+}, function(error){
 
 console.log("Email Failed", error);
 alert("Email Failed");
@@ -354,7 +376,6 @@ function clearForm() {
 
 // 🚀 Load on start
 window.onload = function(){
-   sendEmailOnceDaily();
 };
   await loadAssets();
   checkWarrantyAlerts(); 
