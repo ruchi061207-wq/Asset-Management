@@ -208,7 +208,7 @@ let message = "⚠ Warranty Expiring Soon:\n\n";
 
 expiringAssets.forEach(asset => {
 
-message += asset.name + " (" + asset.serialNumber + ") expires on " + asset.expiry + "\n";
+message += asset.name + " (" + (asset.serialNumber || "") + ") expires on " + asset.expiry + "\n";
 
 });
 
