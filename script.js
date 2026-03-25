@@ -58,9 +58,9 @@ async function loadAssets() {
 }
 
 // ❌ Delete
-window.deleteAsset = async function (i) {
+window.deleteAsset = async function (id) {
   if (confirm("Delete this asset?")) {
-    await deleteDoc(doc(db, "assets", assets[i].id));
+    await deleteDoc(doc(db, "assets", id));
     loadAssets();
   }
 };
@@ -77,7 +77,7 @@ window.editAsset = function (id) {
   editIndex = assets.indexOf(a);
 };
 
-window.exportCSV = function () {
+window.exportExcel = function () {
   if (!assets || assets.length === 0) {
     alert("No data to export");
     return;
