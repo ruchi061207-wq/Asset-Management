@@ -59,10 +59,14 @@ async function loadAssets() {
 
 // ❌ Delete
 window.deleteAsset = async function (id) {
+
   if (confirm("Delete this asset?")) {
+
     await deleteDoc(doc(db, "assets", id));
+
     loadAssets();
   }
+
 };
 
 // ✏️ Edit
@@ -78,29 +82,62 @@ window.editAsset = function (id) {
 };
 
 window.exportExcel = function () {
+
   if (!assets || assets.length === 0) {
     alert("No data to export");
     return;
   }
 
-  // Prepare data
-  let data = assets.map(a => ({
-    Asset: a.name,
-    Vendor: a.vendor,
-    Purchase: a.purchase,
-    Expiry: a.expiry,
-    Status: getStatus(a.expiry)
-  }));
+  let today = new Date();
 
-  // Create worksheet
-  let ws = XLSX.utils.json_to_sheet(data);
+  let rows = [
+    ["Asset", "Vendor", "Purchase", "Expiry", "Status"]
+  ];
 
-  // Create workbook
+  let colors = [];
+
+  assets.forEach(a => {
+
+    let expiryDate = new Date(a.expiry);
+    let diff = (expiryDate - today) / (1000*60*60*24);
+
+    let status = "Active";
+    let color = "90EE90"; // green
+
+    if (diff <= 7 && diff >= 0) {
+      status = "Expiring";
+      color = "FFFF00"; // yellow
+    } 
+    else if (diff < 0) {
+      status = "Expired";
+      color = "FF0000"; // red
+    }
+
+    rows.push([a.name, a.vendor, a.purchase, a.expiry, status]);
+    colors.push(color);
+
+  });
+
+  let ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Apply color to status column
+  for (let i = 0; i < colors.length; i++) {
+
+    let cell = "E" + (i + 2);
+
+    if (ws[cell]) {
+      ws[cell].s = {
+        fill: { fgColor: { rgb: colors[i] } }
+      };
+    }
+
+  }
+
   let wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Assets");
 
-  // Download file
   XLSX.writeFile(wb, "Asset_Report.xlsx");
+
 };
 
 function getStatus(expiry) {
@@ -168,6 +205,33 @@ function displayAssets(filtered = assets) {
   document.getElementById("expired").innerText = expired;
 }
 
+// Popup Message
+function showExpiryAlert(){
+
+  let today = new Date();
+  let expiringAssets = [];
+
+  assets.forEach(a => {
+
+    let expiryDate = new Date(a.expiry);
+    let diff = (expiryDate - today) / (1000*60*60*24);
+
+    if(diff <= 7 && diff >= 0){
+      expiringAssets.push(a.name);
+    }
+
+  });
+
+  if(expiringAssets.length > 0){
+
+    let message = "⚠️ Expiring Soon:\n\n" + expiringAssets.join("\n");
+
+    alert(message);
+
+  }
+
+}
+
 // 🧹 Clear form
 function clearForm() {
   assetName.value = "";
@@ -177,4 +241,10 @@ function clearForm() {
 }
 
 // 🚀 Load on start
-window.onload = loadAssets; 
+window.onload = async function(){
+
+  await loadAssets();
+
+  showExpiryAlert();
+
+};
