@@ -241,7 +241,7 @@ let templateParams = {
 message: message
 };
 
-// 🔍 Check Firestore if email already sent today
+// Check Firestore if email already sent today
 const docRef = doc(db,"system","emailStatus");
 const docSnap = await getDoc(docRef);
 
@@ -255,7 +255,7 @@ return;
 
 }
 
-// 📧 Send Email
+// Send Email
 emailjs.send("service_6b9nrh7","template_rzx54en",templateParams)
 .then(async function(response){
 
@@ -271,6 +271,7 @@ console.log("Email Failed", error);
 });
 
 }
+
 // 📊 Display
 function displayAssets(filtered = assets) {
   let table = document.getElementById("assetTable");
