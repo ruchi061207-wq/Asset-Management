@@ -222,25 +222,7 @@ sendWarrantyEmail(expiringAssets);
 }
 }
 
-//Email Function
-function sendWarrantyEmail(expiringAssets){
-
-console.log("Email function started");
-
-let message = "";
-
-expiringAssets.forEach(asset => {
-
-let serialText = asset.serial ? " (" + asset.serial + ")" : "";
-
-message += asset.name + serialText + " expires on " + asset.expiry + "\n";
-
-});
-
-let templateParams = {
-message: message
-};
-
+// Email Function
 async function sendWarrantyEmail(expiringAssets){
 
 console.log("Email function started");
@@ -278,20 +260,17 @@ emailjs.send("service_6b9nrh7","template_rzx54en",templateParams)
 .then(async function(response){
 
 console.log("Email Sent Successfully", response);
-alert("Email Sent");
 
-// Save today's date in Firestore
+// Save today's date
 await setDoc(docRef,{ lastSent: today });
 
 }, function(error){
 
 console.log("Email Failed", error);
-alert("Email Failed");
 
 });
 
 }
-
 // 📊 Display
 function displayAssets(filtered = assets) {
   let table = document.getElementById("assetTable");
@@ -375,9 +354,10 @@ function clearForm() {
 }
 
 // 🚀 Load on start
-window.onload = function(){
-};
-  await loadAssets();
-  checkWarrantyAlerts(); 
+window.onload = async function(){
+
+await loadAssets();
+
+checkWarrantyAlerts();
 
 };
