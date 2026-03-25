@@ -154,13 +154,69 @@ function getStatus(expiry) {
 
 // 🔍 Search
 window.searchAsset = function () {
-  let val = search.value.toLowerCase();
-  let filtered = assets.filter(a =>
-    a.name.toLowerCase().includes(val) ||
-    a.vendor.toLowerCase().includes(val)
+
+  let val = document.getElementById("search").value.toLowerCase();
+
+  let filtered = assets.filter(asset => 
+    Object.values(asset).some(value =>
+      String(value).toLowerCase().includes(val)
+    )
   );
+
   displayAssets(filtered);
 };
+
+//filter
+window.filterAssets = function(type){
+
+let today = new Date();
+
+let filtered = assets.filter(asset => {
+
+let expiryDate = new Date(asset.expiry);
+let diff = (expiryDate - today) / (1000*60*60*24);
+
+if(type === "active") return diff > 7;
+if(type === "expiring") return diff <= 7 && diff >= 0;
+if(type === "expired") return diff < 0;
+
+return true;
+
+});
+
+displayAssets(filtered);
+
+};
+
+//warranty
+function checkWarrantyAlerts(){
+
+let today = new Date();
+
+let expiringAssets = assets.filter(asset => {
+
+let expiryDate = new Date(asset.expiry);
+let diff = (expiryDate - today) / (1000*60*60*24);
+
+return diff <= 7 && diff >= 0;
+
+});
+
+if(expiringAssets.length > 0){
+
+let message = "⚠ Warranty Expiring Soon:\n\n";
+
+expiringAssets.forEach(asset => {
+
+message += asset.name + " (" + asset.serialNumber + ") expires on " + asset.expiry + "\n";
+
+});
+
+alert(message);
+
+}
+
+}
 
 // 📊 Display
 function displayAssets(filtered = assets) {
@@ -248,7 +304,6 @@ function clearForm() {
 window.onload = async function(){
 
   await loadAssets();
-
-  showExpiryAlert();
+  checkWarrantyAlerts(); 
 
 };
