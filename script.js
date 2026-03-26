@@ -16,6 +16,7 @@ const firebaseConfig = { apiKey: "AIzaSyD8tTfM7kgtDAz66bD_Ri2_WHVbvUfVXl0",
                        }; 
 const app = initializeApp(firebaseConfig); 
 const db = getFirestore(app); 
+const auth = getAuth(app);
 let assets = []; 
 let editIndex = -1; 
 
@@ -54,6 +55,16 @@ window.addAsset = async function ()
   } 
 }; 
 
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+
+window.location.href="login.html";
+
+}
+
+});
+
 /* Load Assets */ 
 async function loadAssets()
 { 
@@ -72,15 +83,7 @@ async function loadAssets()
   } 
 } 
 
-onAuthStateChanged(auth,(user)=>{
 
-if(!user){
-
-window.location.href="login.html";
-
-}
-
-});
 
 window.logout = function(){
 
