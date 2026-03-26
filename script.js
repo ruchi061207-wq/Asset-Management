@@ -1,5 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
+getAuth, onAuthStateChanged, signOut 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
   getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -68,6 +71,26 @@ async function loadAssets()
     console.error("Error loading assets:", e); 
   } 
 } 
+
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+
+window.location.href="login.html";
+
+}
+
+});
+
+window.logout = function(){
+
+signOut(auth).then(()=>{
+
+window.location.href="login.html";
+
+});
+
+}
 
 /* Delete Asset */ 
 window.deleteAsset = async function (id) 
