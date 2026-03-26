@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Login - Asset Manager</title>
+<title>Asset Manager Login</title>
 </head>
 
 <body>
 
-<h2>Asset Manager Login</h2>
+<h2>Login</h2>
 
 <input type="email" id="email" placeholder="Email">
 <br><br>
@@ -21,9 +21,12 @@
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-getAuth, signInWithEmailAndPassword 
+
+import {
+getAuth,
+signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 
 const firebaseConfig = {
 apiKey: "AIzaSyD8tTfM7kgtDAz66bD_Ri2_WHVbvUfVXl0",
@@ -35,22 +38,26 @@ appId: "1:140250118302:web:e10d723fd07bba652ea38f"
 };
 
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
+
 
 window.login = function(){
 
 let email = document.getElementById("email").value;
+
 let password = document.getElementById("password").value;
+
 
 signInWithEmailAndPassword(auth,email,password)
 
-.then(()=>{
+.then((userCredential)=>{
 
-window.location.href = "index.html";
+window.location.href="index.html";
 
 })
 
-.catch(error=>{
+.catch((error)=>{
 
 document.getElementById("error").innerText = error.message;
 
@@ -61,4 +68,5 @@ document.getElementById("error").innerText = error.message;
 </script>
 
 </body>
+</html>
 </html>
